@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EdgeGuard | Advanced Infrastructure Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased p-6">
+
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-5 mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                    🛡️ EdgeGuard <span class="text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md">v2.1 Enterprise</span>
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Cross-Platform Infrastructure Command Center (Windows/Linux Native)</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="os-badge" class="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                    Detecting Platform...
+                </div>
+                <div class="px-3 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse">
+                    ● WebSocket Data Stream Active
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl border-l-4 border-emerald-500" id="card-status">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">System Node Status</span>
+                <span id="status-val" class="text-2xl font-black text-emerald-400 mt-2 block">Awaiting Daemon...</span>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl border-l-4 border-blue-500">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Memory Exhaustion</span>
+                <span id="memory-val" class="text-4xl font-black text-blue-400 mt-1 block">0%</span>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl border-l-4 border-purple-500">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Est. Time to Outage</span>
+                <span id="crash-val" class="text-2xl font-black text-purple-400 mt-2 block">Calculating...</span>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl border-l-4 border-rose-500">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Business Revenue Risk</span>
+                <span id="risk-val" class="text-2xl font-black text-rose-500 mt-2 block">$0.00 / hr</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2 bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">📈 Core Memory Stress Allocation History</h3>
+                <div class="h-72">
+                    <canvas id="liveChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">⚡ Hypervisor Risk Containment</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Direct hardware interface control panel. Trigger proactive containment actions down to the target microservice architecture.</p>
+
+                    <div class="mt-6 space-y-3">
+                        <button onclick="alert('Command Executed: Host page cache cleared successfully.')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm border border-slate-700 transition">
+                            🔄 Flush Operating System Cache
+                        </button>
+                        <button onclick="alert('Command Executed: SIGTERM sent to rogue threads.')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm border border-slate-700 transition">
+                            🚨 Terminate Rogue Memory Overallocations
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-4 mt-4">
+                    <span class="text-xs font-bold text-slate-500 block uppercase tracking-wider mb-2">SLA Audit Compliance</span>
+                    <div class="flex justify-between text-xs text-emerald-400 font-semibold">
+                        <span>• Target Infrastructure Cluster</span> <span>99.99% Uptime</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const ctx = document.getElementById('liveChart').getContext('2d');
+
+        // Premium Chart configuration with custom gradients and dark grid lines
+        const liveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Physical Memory Allocation (%)',
+                    data: [],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.03)',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#3b82f6',
+                    tension: 0.35,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    y: { min: 0, max: 100, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Real-Time Event Catching Layer
+        socket.on('telemetry_update', function(data) {
+            const metrics = data.metrics;
+
+            // Dynamic text updates
+            document.getElementById('memory-val').innerText = metrics.used_percent + '%';
+            document.getElementById('status-val').innerText = data.status;
+            document.getElementById('os-badge').innerText = "Host Node: " + data.platform.toUpperCase();
+
+            // Handle Corporate Threshold Rulebook Dynamically
+            const cardStatus = document.getElementById('card-status');
+            if(data.status === 'HEALTHY') {
+                cardStatus.style.borderColor = '#10b981';
+                document.getElementById('status-val').className = "text-2xl font-black text-emerald-400 mt-1";
+                document.getElementById('crash-val').innerText = "System Stable";
+                document.getElementById('risk-val').innerText = "$0.00 (Safe)";
+            } else if(data.status === 'WARNING') {
+                cardStatus.style.borderColor = '#f59e0b';
+                document.getElementById('status-val').className = "text-2xl font-black text-amber-500 mt-1";
+                document.getElementById('crash-val').innerText = "~ 1.5 Hours Left";
+                document.getElementById('risk-val').innerText = "$350.00 / hr";
+            } else {
+                cardStatus.style.borderColor = '#ef4444';
+                document.getElementById('status-val').className = "text-2xl font-black text-rose-500 mt-1";
+                document.getElementById('crash-val').innerText = "< 12 Mins (Critical)";
+                document.getElementById('risk-val').innerText = "$1,800.00 / hr";
+            }
+
+            // Stream Timeline Graph updates
+            const timestampStr = data.timestamp.split(' ')[1] || '';
+            liveChart.data.labels.push(timestampStr);
+            liveChart.data.datasets[0].data.push(metrics.used_percent);
+
+            // Maintain rolling data frame matrix of 12 elements
+            if (liveChart.data.labels.length > 12) {
+                liveChart.data.labels.shift();
+                liveChart.data.datasets[0].data.shift();
+            }
+            liveChart.update();
+        });
+    </script>
+</body>
+</html>
